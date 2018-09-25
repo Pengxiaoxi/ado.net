@@ -82,6 +82,14 @@ namespace ADO
         }
 
 
+        protected void firstnewuser()
+        {
+            string sql = "select * from t_user order by id asc";
+
+            object obj = sqlhelper.ExecuteScalar(sql, null);
+        }
+
+
 
         //删除  ado.net   way1
         //protected void deleteuser()

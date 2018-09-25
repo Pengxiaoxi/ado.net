@@ -76,5 +76,38 @@ namespace sqlhelper
             }
         }
 
+
+        //ExecuteScalar  返回第一行第一列的值  可以更具排序方式查询出最新的那个的ID，然后在进行其他操作等
+        public object ExecuteScalar(string sql, params SqlParameter[] parameter)
+        {
+            object obj = null;
+
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    if (parameter != null)
+                    {
+                        cmd.Parameters.AddRange(parameter);
+                    }
+
+                    conn.Open();
+
+                    obj = cmd.ExecuteScalar();
+
+                    return obj;
+                }
+            }
+            catch (Exception)
+            {
+                return obj;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+
     }
 }
