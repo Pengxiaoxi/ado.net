@@ -97,7 +97,7 @@ namespace ADO
                     }
                     if (i > 0)
                     {
-                        Response.Write("添加成功！");
+                        //Response.Write("添加成功！");
                         Response.Redirect("/UserInfo.aspx");
                     }
                     else

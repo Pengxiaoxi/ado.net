@@ -23,6 +23,8 @@ namespace ADO
         public List<userinfo> userInfo { get; set; }
         public int uid { get; set; }
 
+        SqlHelper sqlhelper = new SqlHelper();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string flag = Request["flag"];
@@ -36,54 +38,137 @@ namespace ADO
                 this.deleteuser();
             }
         }
-        //查询
+
+        ////查询 WAY1  ado.net
+        //protected void showuser()
+        //{
+        //    //得到数据库连接对象conn
+        //    using (SqlConnection conn = new SqlConnection(connStr))
+        //    {
+        //        string sql = "select * from t_user";    //定义sql语句  where nickname = 'px';  where mobile like '%123%'"
+
+        //        using (SqlDataAdapter atper = new SqlDataAdapter(sql, conn))
+        //        {
+        //            DataTable da = new DataTable();     //创建数据表对象
+
+        //            atper.Fill(da);   //将数据库查询出来的结果填充到da对象中
+
+        //            //int i = da.Rows.Count;   //查询出来了几条数据
+
+        //            UserDao userdao = new UserDao();
+
+        //            userInfo = userdao.DataTableToList(da);  //将DataTable转换为List               
+        //        }
+        //    }
+        //}
+
+        //查询nickname = px的  //WAY2   调用sqlhelper类传递SQL与参数
         protected void showuser()
-        {
-            ////得到数据库连接对象conn
-            //using (SqlConnection conn = new SqlConnection(connStr))
-            //{
-            //    string sql = "select * from t_user";    //定义sql语句  where nickname = 'px';  where mobile like '%123%'"
+        {    
+            string nickname = "lc";
 
-            //    using (SqlDataAdapter atper = new SqlDataAdapter(sql, conn))
-            //    {
-            //        DataTable da = new DataTable();     //创建数据表对象
-
-            //        atper.Fill(da);   //将数据库查询出来的结果填充到da对象中
-
-            //        //int i = da.Rows.Count;   //查询出来了几条数据
-
-            //        UserDao userdao = new UserDao();
-
-            //        userInfo = userdao.DataTableToList(da);  //将DataTable转换为List               
-            //    }
-            //}
-
-            //int id;
-
-            SqlHelper sqlhelper = new SqlHelper();
+            string sql = "select * from t_user";    //定义带有参数的SQL语句 where nickname=@nickname
 
             SqlParameter[] param = {
-                //new SqlParameter("@id", SqlDbType.Int),
-                new SqlParameter(),
+                new SqlParameter("@nickname",SqlDbType.VarChar),
             };
-            //param[0].Value = id;
+            param[0].Value = nickname;                           //定义参数数组并赋值
 
-            string sql = "select * from t_user";
-
-            DataTable da = sqlhelper.ExecuteQuery(sql, param);
+            DataTable da = sqlhelper.ExecuteQuery(sql, null);   //若有参数则传参否则为null
 
             UserDao userdao = new UserDao();
 
-            userInfo = userdao.DataTableToList(da);   
-
+            userInfo = userdao.DataTableToList(da);              //转换为list集合
         }
 
-        //protected List<userinfo> userlist()
+
+
+        //删除  ado.net   way1
+        //protected void deleteuser()
         //{
+        //    uid = Convert.ToInt32(Request["uid"]);   //Int32.Parse()
+        //    //得到数据库连接对象conn
+        //    using (SqlConnection conn = new SqlConnection(connStr))
+        //    {
+        //        string sql = "delete from t_user where id = @id";  //删除的SQL语句
 
+        //        using (SqlCommand cmd = new SqlCommand(sql, conn))
+        //        {
+        //            SqlParameter[] param = {
+        //                new SqlParameter("@id", SqlDbType.Int)
+        //            };
 
-        //    return userlist;
+        //            param[0].Value = uid;
+
+        //            cmd.Parameters.AddRange(param);    //将参数数组添加到SQL语句中
+
+        //            conn.Open();  //打开数据库连接
+        //            int i = cmd.ExecuteNonQuery();  //返回受影响行数
+
+        //            if (i > 0)
+        //            {
+        //                Response.Redirect("/UserInfo.aspx");
+        //            }
+        //            else
+        //            {
+        //                Response.Redirect("/UserInfo.aspx");
+        //            }
+
+        //        }
+        //    }
         //}
+
+
+        //删除方法 way2   调用sqlhelper类
+        protected void deleteuser()
+        {
+            uid = Convert.ToInt32(Request["uid"]);
+
+            string sql = "delete from t_user where id = @id";
+
+            SqlParameter[] paramter = {
+                new SqlParameter("@id",SqlDbType.Int),
+            };
+            paramter[0].Value = uid;                //定义参数数组并赋值
+
+            int i = sqlhelper.ExecuteNonQuery(sql, paramter);   //返回受影响行数
+
+            if (i > 0)
+            {
+                Response.Redirect("/UserInfo.aspx");
+            }
+            else
+            {
+                Response.Redirect("/UserInfo.aspx");
+            }
+        }
+
+
+
+        //将数据表da转换为List集合
+        protected List<userinfo> findUserList(DataTable da)
+        {
+            //if (da.Rows.Count > 0)
+            //{
+            List<userinfo> userlist = new List<userinfo>();
+            foreach (DataRow row in da.Rows)
+            {
+                userinfo user = new userinfo();
+                user.id = Convert.ToInt32(row["id"]);
+                user.nickname = row["nickname"].ToString();
+                user.truename = row["truename"].ToString();
+                user.sex = row["sex"].ToString();
+                user.regtime = Convert.ToDateTime(row["regtime"]);   //Covert转换函数
+                user.mobile = row["mobile"].ToString();
+                user.email = row["email"].ToString();
+
+                userlist.Add(user);   //将创建出来的userinfo对象一一保存到userInfo中
+            }
+            //}
+            return userlist;
+        }
+
+
 
         //查询
         //protected void try1()
@@ -135,64 +220,5 @@ namespace ADO
         //    }
         //}
 
-
-        //删除
-        protected void deleteuser()
-        {
-            uid = Convert.ToInt32(Request["uid"]);   //Int32.Parse()
-            //得到数据库连接对象conn
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string sql = "delete from t_user where id = @id";  //删除的SQL语句
-
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    SqlParameter[] param = {
-                        new SqlParameter("@id", SqlDbType.Int)
-                    };
-
-                    param[0].Value = uid;
-
-                    cmd.Parameters.AddRange(param);    //将参数数组添加到SQL语句中
-
-                    conn.Open();  //打开数据库连接
-                    int i = cmd.ExecuteNonQuery();  //返回受影响行数
-
-                    if (i > 0)
-                    {
-                        Response.Redirect("/UserInfo.aspx");
-                    }
-                    else
-                    {
-                        Response.Redirect("/UserInfo.aspx");
-                    }
-
-                }
-            }
-        }
-
-
-        //将数据表da转换为List集合
-        protected List<userinfo> findUserList(DataTable da)
-        {
-            //if (da.Rows.Count > 0)
-            //{
-            List<userinfo> userlist = new List<userinfo>();
-            foreach (DataRow row in da.Rows)
-            {
-                userinfo user = new userinfo();
-                user.id = Convert.ToInt32(row["id"]);
-                user.nickname = row["nickname"].ToString();
-                user.truename = row["truename"].ToString();
-                user.sex = row["sex"].ToString();
-                user.regtime = Convert.ToDateTime(row["regtime"]);   //Covert转换函数
-                user.mobile = row["mobile"].ToString();
-                user.email = row["email"].ToString();
-
-                userlist.Add(user);   //将创建出来的userinfo对象一一保存到userInfo中
-            }
-            //}
-            return userlist;
-        }
     }
 }
