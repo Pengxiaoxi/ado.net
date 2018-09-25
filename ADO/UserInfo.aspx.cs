@@ -20,6 +20,8 @@ namespace ADO
         //调用config文件中的数据库连接   （这个成员只能在本类中使用，这个成员不需要实例化即可使用，这个成员只能在"类初始化"时赋值）
         private readonly static string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
 
+        //SqlConnection conn = new SqlConnection(connStr);
+
         public List<userinfo> userInfo { get; set; }
         public int uid { get; set; }
 
@@ -39,28 +41,45 @@ namespace ADO
             }
         }
 
-        ////查询 WAY1  ado.net
-        //protected void showuser()
-        //{
-        //    //得到数据库连接对象conn
-        //    using (SqlConnection conn = new SqlConnection(connStr))
-        //    {
-        //        string sql = "select * from t_user";    //定义sql语句  where nickname = 'px';  where mobile like '%123%'"
+        //查询 WAY1  ado.net
+        protected void showuser1()
+        {
+            //得到数据库连接对象conn
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "select * from t_user";    //定义sql语句  where nickname = 'px';  where mobile like '%123%'"
 
-        //        using (SqlDataAdapter atper = new SqlDataAdapter(sql, conn))
-        //        {
-        //            DataTable da = new DataTable();     //创建数据表对象
+                using (SqlDataAdapter atper = new SqlDataAdapter(sql, conn))
+                {
+                    DataTable da = new DataTable();     //创建数据表对象
 
-        //            atper.Fill(da);   //将数据库查询出来的结果填充到da对象中
+                    atper.Fill(da);   //将数据库查询出来的结果填充到da对象中
 
-        //            //int i = da.Rows.Count;   //查询出来了几条数据
+                    //int i = da.Rows.Count;   //查询出来了几条数据
 
-        //            UserDao userdao = new UserDao();
+                    UserDao userdao = new UserDao();
 
-        //            userInfo = userdao.DataTableToList(da);  //将DataTable转换为List               
-        //        }
-        //    }
-        //}
+                    userInfo = userdao.DataTableToList(da);  //将DataTable转换为List         //DataSet ds = new DataSet();   adapter.Fill(ds);  ds.Tables[0]
+                }
+            }
+
+            //using (SqlConnection conn = new SqlConnection(connStr))
+            //{
+            //    string sql = "";
+
+            //    using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))
+            //    {
+            //        DataTable da = new DataTable();       
+
+            //        adapter.Fill(da);
+
+            //        UserDao userDao = new UserDao();
+
+            //        userInfo = userDao.DataTableToList(da);  
+            //    }
+            //}
+
+        }
 
         //查询nickname = px的  //WAY2   调用sqlhelper类传递SQL与参数
         protected void showuser()
@@ -81,7 +100,7 @@ namespace ADO
             userInfo = userdao.DataTableToList(da);              //转换为list集合
         }
 
-
+        //查询第一行，第一列的值ExecuteScalar
         protected void firstnewuser()
         {
             string sql = "select * from t_user order by id asc";
@@ -91,40 +110,61 @@ namespace ADO
 
 
 
-        //删除  ado.net   way1
-        //protected void deleteuser()
-        //{
-        //    uid = Convert.ToInt32(Request["uid"]);   //Int32.Parse()
-        //    //得到数据库连接对象conn
-        //    using (SqlConnection conn = new SqlConnection(connStr))
-        //    {
-        //        string sql = "delete from t_user where id = @id";  //删除的SQL语句
+        //删除 ado.net   way1
+        protected void deleteuser1()
+        {
+            uid = Convert.ToInt32(Request["uid"]);   //Int32.Parse()
+            //得到数据库连接对象conn
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "delete from t_user where id = @id";  //删除的SQL语句
 
-        //        using (SqlCommand cmd = new SqlCommand(sql, conn))
-        //        {
-        //            SqlParameter[] param = {
-        //                new SqlParameter("@id", SqlDbType.Int)
-        //            };
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    SqlParameter[] param = {
+                        new SqlParameter("@id", SqlDbType.Int)
+                    };
 
-        //            param[0].Value = uid;
+                    param[0].Value = uid;
 
-        //            cmd.Parameters.AddRange(param);    //将参数数组添加到SQL语句中
+                    cmd.Parameters.AddRange(param);    //将参数数组添加到SQL语句中
 
-        //            conn.Open();  //打开数据库连接
-        //            int i = cmd.ExecuteNonQuery();  //返回受影响行数
+                    conn.Open();  //打开数据库连接
+                    int i = cmd.ExecuteNonQuery();  //返回受影响行数
 
-        //            if (i > 0)
-        //            {
-        //                Response.Redirect("/UserInfo.aspx");
-        //            }
-        //            else
-        //            {
-        //                Response.Redirect("/UserInfo.aspx");
-        //            }
+                    if (i > 0)
+                    {
+                        Response.Redirect("/UserInfo.aspx");
+                    }
+                    else
+                    {
+                        Response.Redirect("/UserInfo.aspx");
+                    }
 
-        //        }
-        //    }
-        //}
+                }
+            }
+
+
+            //using (SqlConnection conn = new SqlConnection(connStr))
+            //{
+            //    string sql = "";
+
+            //    using (SqlCommand cmd = new SqlCommand(sql, conn))
+            //    {
+            //        SqlParameter[] param = {
+            //            new SqlParameter("@id", SqlDbType.Int),
+            //        };
+
+            //        param[0].Value = 1;
+
+            //        cmd.Parameters.AddRange(param);
+
+            //        conn.Open();  
+            //        int i = cmd.ExecuteNonQuery();
+            //    }
+            //}
+
+        }
 
 
         //删除方法 way2   调用sqlhelper类

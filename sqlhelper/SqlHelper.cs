@@ -14,22 +14,19 @@ namespace sqlhelper
         //获取配置文件中的数据库连接字符串
         private static readonly string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
 
-        private static readonly SqlConnection conn = new SqlConnection(connStr);
-
+        private static readonly SqlConnection conn = new SqlConnection(connStr);   //实例化对象   可使用using语句，会自动释放资源
 
         //ExecuteQuery查询返回DataTable
         public DataTable ExecuteQuery(string sql, params SqlParameter[] parameters)    //若定义为static则不要需要引用new
         {
             try
             {
-                using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))         //ps：SqlDataAdapter会自动打开数据库连接
                 {
                     if (parameters != null)
                     {
                         adapter.SelectCommand.Parameters.AddRange(parameters);
                     }
-
-                    //conn.Open();   //打开数据库连接  ps：SqlDataAdapter会自动打开数据库连接
 
                     DataTable datatabele = new DataTable();
 
@@ -107,7 +104,5 @@ namespace sqlhelper
                 conn.Close();
             }
         }
-
-
     }
 }
