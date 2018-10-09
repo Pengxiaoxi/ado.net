@@ -25,11 +25,24 @@ namespace ADO
         public List<userinfo> userInfo { get; set; }
         public int uid { get; set; }
 
+        public string MachineName { get; set; }
+
         SqlHelper sqlhelper = new SqlHelper();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             string flag = Request["flag"];
+
+            MachineName = Server.MachineName;   //获取服务器的计算机名称
+
+            //设置前先锁定应用程序状态，只供一个线程写入，操作完成后再解除锁定状态
+            Application.Lock();
+            Application["count"] = (int)Application["count"] + 1;
+            Application.UnLock();
+
+            Response.Write("您是第"+Application["count"]+"位访客!");
+
+
 
             if (flag == null || "".Equals(flag))
             {

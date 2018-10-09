@@ -65,6 +65,8 @@
                  <%}
                 %>
                 <tr><td><a href="AddUser.aspx">添加用户</a></td></tr>
+
+                <%=MachineName %>
             </tbody>
         </table>
     </div>
